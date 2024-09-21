@@ -1,0 +1,48 @@
+name: Generate PDF and Publish Release
+
+on:
+  push:
+    branches:
+      - main  # 指定分支，或使用 `*` 表示所有分支
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Pandoc and LaTeX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-plain-generic
+        sudo apt-get install -y fonts-noto-cjk
+
+    - name: Find and convert report.md to PDF
+      run: |
+        for dir in $(find . -mindepth 1 -maxdepth 1 -type d); do
+          if [ -f "$dir/report.md" ]; then
+            foldername=$(basename "$dir")
+            filename="${foldername}_313832008_簡蔚驊.pdf"
+            pandoc "$dir/report.md" -o "$dir/$filename" --pdf-engine=xelatex
+            echo "Generated $dir/$filename"
+          fi
+        done
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "release-${{ github.sha }}"
+        release_name: "Generated PDF Release"
+        draft: false
+        prerelease: false
+
+    - name: Upload generated PDFs to release
+      run: |
+        for pdf in $(find . -name "*_313832008.pdf"); do
+          gh release upload ${{ steps.create_release.outputs.upload_url }} "$pdf" --clobber
+        done
