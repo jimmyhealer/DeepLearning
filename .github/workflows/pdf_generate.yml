@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install Pandoc and LaTeX
+    - name: Install Pandoc, LaTeX, and Noto Sans CJK TC
       run: |
         sudo apt-get update
         sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-plain-generic texlive-lang-chinese
@@ -41,8 +41,12 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Set release URL as output
+      run: |
+        echo "RELEASE_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
     - name: Upload generated PDFs to release
       run: |
-        for pdf in $(find . -name "*_313832008.pdf"); do
-          gh release upload ${{ steps.create_release.outputs.upload_url }} "$pdf" --clobber
+        for pdf in $(find . -name "*_313832008_簡蔚驊.pdf"); do
+          gh release upload ${{ env.RELEASE_URL }} "$pdf" --clobber
         done
