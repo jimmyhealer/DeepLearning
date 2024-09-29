@@ -3,9 +3,8 @@ venv
 *.pdf
 *.zip
 
-*.png
+train_png
 *.jpg
-!assets/*.png
 
 data
 mlartifacts
