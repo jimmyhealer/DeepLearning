@@ -2,3 +2,14 @@
 venv
 *.pdf
 *.zip
+
+*.png
+*.jpg
+!assets/*.png
+
+data
+mlartifacts
+mlruns
+.vscode
+.ipynb_checkpoints
+*.csv
