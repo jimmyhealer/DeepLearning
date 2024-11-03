@@ -18,14 +18,20 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-plain-generic texlive-lang-chinese
         sudo apt-get install -y fonts-noto-cjk
+        curl -L https://www.zotero.org/styles/ieee -o ieee.csl        
 
     - name: Find and convert report.md to PDF
       run: |
         for dir in $(find . -mindepth 1 -maxdepth 1 -type d); do
           if [ -f "$dir/report.md" ]; then
             foldername=$(basename "$dir")
-            filename="${foldername}_313832008_簡蔚驊.pdf"
-            pandoc "$dir/report.md" -o "$dir/$filename" --pdf-engine=xelatex
+            filename="${foldername}_313832008_簡蔚驊.pdf"        
+            if [ -f "$dir/references.bib" ]; then
+              pandoc "$dir/report.md" -o "$dir/$filename" --pdf-engine=xelatex --citeproc \
+              --bibliography="$dir/references.bib" --csl=ieee.csl
+            else
+              pandoc "$dir/report.md" -o "$dir/$filename" --pdf-engine=xelatex
+            fi            
             echo "Generated $dir/$filename"
           fi
         done
